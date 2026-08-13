@@ -4,6 +4,11 @@ export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
     const allowedOrigin = env.ALLOWED_ORIGIN || DEFAULT_ALLOWED_ORIGIN;
+    const url = new URL(request.url);
+
+    if (url.pathname === '/health') {
+      return healthResponse(env);
+    }
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders(origin, allowedOrigin) });
@@ -21,7 +26,6 @@ export default {
       return json({ error: 'Unauthorized' }, 401, headers);
     }
 
-    const url = new URL(request.url);
     if (url.pathname !== '/state') {
       return json({ error: 'Not found' }, 404, headers);
     }
@@ -51,6 +55,37 @@ export default {
     }
   }
 };
+
+async function healthResponse(env) {
+  const headers = new Headers({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+  const tokenConfigured = !!env.GITHUB_TOKEN;
+  const syncKeyConfigured = !!env.SYNC_KEY;
+  let githubStatus = null;
+  let githubReachable = false;
+
+  if (tokenConfigured) {
+    try {
+      const { owner, repo } = repoConfig(env);
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers: githubHeaders(env) });
+      githubStatus = res.status;
+      githubReachable = res.ok;
+    } catch {
+      githubStatus = 0;
+    }
+  }
+
+  const ok = tokenConfigured && syncKeyConfigured && githubReachable;
+  return json({
+    ok,
+    worker: 'canasta-tracker-sync',
+    githubTokenConfigured: tokenConfigured,
+    syncKeyConfigured,
+    githubReachable,
+    githubStatus,
+    targetBranch: repoConfig(env).branch,
+    targetPath: repoConfig(env).path
+  }, ok ? 200 : 503, headers);
+}
 
 function corsHeaders(origin, allowedOrigin) {
   const h = new Headers({
