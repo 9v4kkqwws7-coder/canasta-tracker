@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Canasta" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="styles.css" />
   <title>Canasta Tracker</title>
 </head>
@@ -26,7 +26,7 @@
       <button class="tab active" data-view="game">Spiel</button>
       <button class="tab" data-view="history">Historie</button>
       <button class="tab" data-view="stats">Statistik</button>
-      <button class="tab" data-view="settings">Backup</button>
+      <button class="tab" data-view="settings">Sync & Backup</button>
     </nav>
 
     <section id="game" class="view active">
@@ -49,7 +49,16 @@
     <section id="history" class="view"><section class="panel"><h2>Spielhistorie</h2><div id="historyList" class="list empty">Noch keine beendeten Spiele.</div></section></section>
     <section id="stats" class="view"><div id="statsGrid" class="stats-grid"></div></section>
     <section id="settings" class="view">
-      <section class="panel"><h2>Datensicherung</h2><p class="muted">Alle Daten liegen lokal auf diesem Gerät. Exportiere regelmäßig ein Backup.</p><button id="exportBtn" class="primary">Backup exportieren</button><label class="file-label secondary wide">Backup importieren<input id="importInput" type="file" accept="application/json,.json" hidden /></label></section>
+      <section class="panel">
+        <h2>GitHub-Synchronisierung</h2>
+        <p class="muted">Die App bleibt lokal nutzbar und kann zusätzlich über einen geschützten Worker nach GitHub sichern.</p>
+        <label>Worker-URL<input id="workerUrlInput" type="url" placeholder="https://canasta-tracker-sync.…workers.dev" autocomplete="off" /></label>
+        <label>Sync-Schlüssel<input id="syncKeyInput" type="password" placeholder="persönlicher Schlüssel" autocomplete="off" /></label>
+        <button id="saveSyncBtn" class="primary">Sync-Zugang speichern</button>
+        <button id="syncNowBtn" class="secondary wide">Jetzt synchronisieren</button>
+        <p id="syncStatus" class="muted">GitHub-Sync noch nicht eingerichtet.</p>
+      </section>
+      <section class="panel"><h2>Datensicherung</h2><p class="muted">Zusätzlich kannst du jederzeit ein manuelles JSON-Backup exportieren.</p><button id="exportBtn" class="primary">Backup exportieren</button><label class="file-label secondary wide">Backup importieren<input id="importInput" type="file" accept="application/json,.json" hidden /></label></section>
       <section class="panel danger-panel"><h2>Daten löschen</h2><button id="resetBtn" class="danger">Alle Daten löschen</button></section>
     </section>
   </main>
