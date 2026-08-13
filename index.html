@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Canasta" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Canasta Tracker</title>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1>Canasta Tracker</h1>
+        <p class="muted">MU vs. AS · Ziel 5.000</p>
+      </div>
+      <button id="newGameBtn" class="secondary">Neues Spiel</button>
+    </header>
+
+    <nav class="tabs" aria-label="Bereiche">
+      <button class="tab active" data-view="game">Spiel</button>
+      <button class="tab" data-view="history">Historie</button>
+      <button class="tab" data-view="stats">Statistik</button>
+      <button class="tab" data-view="settings">Backup</button>
+    </nav>
+
+    <section id="game" class="view active">
+      <div class="score-grid">
+        <article class="score-card"><span class="team">MU</span><strong id="muTotal">0</strong><small id="muRemaining">Noch 5.000</small></article>
+        <article class="score-card"><span class="team">AS</span><strong id="asTotal">0</strong><small id="asRemaining">Noch 5.000</small></article>
+      </div>
+      <section class="panel">
+        <div class="panel-head"><h2 id="roundHeading">Runde 1</h2><button id="undoBtn" class="text-btn">Letzte Runde löschen</button></div>
+        <div class="input-grid">
+          <label>MU<input id="muInput" inputmode="numeric" type="number" step="5" placeholder="0" /></label>
+          <label>AS<input id="asInput" inputmode="numeric" type="number" step="5" placeholder="0" /></label>
+        </div>
+        <button id="saveRoundBtn" class="primary">Runde speichern</button>
+        <button id="finishGameBtn" class="secondary wide">Spiel manuell beenden</button>
+      </section>
+      <section class="panel"><h2>Runden</h2><div id="roundsList" class="list empty">Noch keine Runde gespeichert.</div></section>
+    </section>
+
+    <section id="history" class="view"><section class="panel"><h2>Spielhistorie</h2><div id="historyList" class="list empty">Noch keine beendeten Spiele.</div></section></section>
+    <section id="stats" class="view"><div id="statsGrid" class="stats-grid"></div></section>
+    <section id="settings" class="view">
+      <section class="panel"><h2>Datensicherung</h2><p class="muted">Alle Daten liegen lokal auf diesem Gerät. Exportiere regelmäßig ein Backup.</p><button id="exportBtn" class="primary">Backup exportieren</button><label class="file-label secondary wide">Backup importieren<input id="importInput" type="file" accept="application/json,.json" hidden /></label></section>
+      <section class="panel danger-panel"><h2>Daten löschen</h2><button id="resetBtn" class="danger">Alle Daten löschen</button></section>
+    </section>
+  </main>
+
+  <dialog id="editDialog"><form method="dialog" class="dialog-card"><h2>Runde bearbeiten</h2><input id="editIndex" type="hidden" /><div class="input-grid"><label>MU<input id="editMu" type="number" step="5" /></label><label>AS<input id="editAs" type="number" step="5" /></label></div><div class="dialog-actions"><button value="cancel" class="secondary">Abbrechen</button><button id="saveEditBtn" value="default" class="primary">Speichern</button></div></form></dialog>
+  <script src="app.js"></script>
+</body>
+</html>
