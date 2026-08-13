@@ -1,0 +1,14 @@
+name = "canasta-tracker-sync"
+main = "index.js"
+compatibility_date = "2026-08-13"
+
+[vars]
+ALLOWED_ORIGIN = "https://9v4kkqwws7-coder.github.io"
+GITHUB_OWNER = "9v4kkqwws7-coder"
+GITHUB_REPO = "canasta-tracker"
+GITHUB_PATH = "data/canasta-state.json"
+GITHUB_BRANCH = "main"
+
+# Secrets (nicht in diese Datei schreiben):
+# wrangler secret put GITHUB_TOKEN
+# wrangler secret put SYNC_KEY
