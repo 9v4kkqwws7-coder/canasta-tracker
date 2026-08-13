@@ -1,8 +1,15 @@
 {
   "current": {
     "startedAt": "2026-08-13T11:17:25.600Z",
-    "rounds": []
+    "rounds": [
+      {
+        "mu": 1290,
+        "as": 800,
+        "redMu": 0,
+        "redAs": 0
+      }
+    ]
   },
   "games": [],
-  "updatedAt": "2026-08-13T11:22:01.371Z"
+  "updatedAt": "2026-08-13T11:40:15.520Z"
 }
