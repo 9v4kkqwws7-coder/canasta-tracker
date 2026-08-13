@@ -40,6 +40,17 @@
           <label>MU<input id="muInput" inputmode="numeric" type="number" step="5" placeholder="0" /></label>
           <label>AS<input id="asInput" inputmode="numeric" type="number" step="5" placeholder="0" /></label>
         </div>
+
+        <div class="red-three-box">
+          <div class="red-three-title">Rote Dreien dieser Runde</div>
+          <div class="input-grid">
+            <label>MU<input id="redMuInput" inputmode="numeric" type="number" min="0" max="4" step="1" value="0" /></label>
+            <label>AS<input id="redAsInput" inputmode="numeric" type="number" min="0" max="4" step="1" value="0" /></label>
+          </div>
+          <p id="redThreePreview" class="muted red-three-preview">Auswertung: MU 0 P · AS 0 P (nicht automatisch addiert)</p>
+          <p class="muted rule-note">1–3 rote Dreien: je 100 Punkte · alle 4 auf einer Seite: 800 Punkte.</p>
+        </div>
+
         <button id="saveRoundBtn" class="primary">Runde speichern</button>
         <button id="finishGameBtn" class="secondary wide">Spiel manuell beenden</button>
       </section>
@@ -63,7 +74,24 @@
     </section>
   </main>
 
-  <dialog id="editDialog"><form method="dialog" class="dialog-card"><h2>Runde bearbeiten</h2><input id="editIndex" type="hidden" /><div class="input-grid"><label>MU<input id="editMu" type="number" step="5" /></label><label>AS<input id="editAs" type="number" step="5" /></label></div><div class="dialog-actions"><button value="cancel" class="secondary">Abbrechen</button><button id="saveEditBtn" value="default" class="primary">Speichern</button></div></form></dialog>
+  <dialog id="editDialog">
+    <form method="dialog" class="dialog-card">
+      <h2>Runde bearbeiten</h2>
+      <input id="editIndex" type="hidden" />
+      <div class="input-grid">
+        <label>MU<input id="editMu" type="number" step="5" /></label>
+        <label>AS<input id="editAs" type="number" step="5" /></label>
+      </div>
+      <div class="red-three-box compact">
+        <div class="red-three-title">Rote Dreien</div>
+        <div class="input-grid">
+          <label>MU<input id="editRedMu" type="number" min="0" max="4" step="1" value="0" /></label>
+          <label>AS<input id="editRedAs" type="number" min="0" max="4" step="1" value="0" /></label>
+        </div>
+      </div>
+      <div class="dialog-actions"><button value="cancel" class="secondary">Abbrechen</button><button id="saveEditBtn" value="default" class="primary">Speichern</button></div>
+    </form>
+  </dialog>
   <script src="app.js"></script>
 </body>
 </html>
