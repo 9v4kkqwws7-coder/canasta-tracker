@@ -91,7 +91,7 @@ function repoConfig(env) {
     owner: env.GITHUB_OWNER || '9v4kkqwws7-coder',
     repo: env.GITHUB_REPO || 'canasta-tracker',
     path: env.GITHUB_PATH || 'data/canasta-state.json',
-    branch: env.GITHUB_BRANCH || 'main'
+    branch: env.GITHUB_BRANCH || 'data'
   };
 }
 
