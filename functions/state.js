@@ -1,0 +1,132 @@
+export async function onRequest(context) {
+  const { request, env } = context;
+  const requestOrigin = new URL(request.url).origin;
+  const origin = request.headers.get('Origin') || '';
+  const extraAllowed = (env.ALLOWED_ORIGINS || 'https://9v4kkqwws7-coder.github.io')
+    .split(',')
+    .map(v => v.trim())
+    .filter(Boolean);
+  const originAllowed = !origin || origin === requestOrigin || extraAllowed.includes(origin);
+
+  const cors = new Headers({
+    'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Canasta-Key',
+    'Cache-Control': 'no-store'
+  });
+  if (originAllowed && origin) cors.set('Access-Control-Allow-Origin', origin);
+
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: originAllowed ? 204 : 403, headers: cors });
+  }
+
+  cors.set('Content-Type', 'application/json; charset=utf-8');
+  if (!originAllowed) return json({ error: 'Origin not allowed' }, 403, cors);
+
+  const suppliedKey = request.headers.get('X-Canasta-Key') || '';
+  if (!env.SYNC_KEY || !timingSafeEqual(suppliedKey, env.SYNC_KEY)) {
+    return json({ error: 'Unauthorized' }, 401, cors);
+  }
+
+  try {
+    if (request.method === 'GET') {
+      const remote = await readGithubState(env);
+      return json({ state: remote.state, sha: remote.sha }, 200, cors);
+    }
+
+    if (request.method === 'PUT') {
+      const raw = await request.text();
+      if (raw.length > 256000) return json({ error: 'Payload too large' }, 413, cors);
+
+      let payload;
+      try { payload = JSON.parse(raw); }
+      catch { return json({ error: 'Invalid JSON' }, 400, cors); }
+
+      if (!isValidState(payload)) return json({ error: 'Invalid state format' }, 400, cors);
+      const result = await writeGithubState(env, payload);
+      return json({ ok: true, commit: result.commit }, 200, cors);
+    }
+
+    return json({ error: 'Method not allowed' }, 405, cors);
+  } catch (error) {
+    console.error(error);
+    return json({ error: 'Sync failed' }, 500, cors);
+  }
+}
+
+function json(data, status, headers) {
+  return new Response(JSON.stringify(data), { status, headers });
+}
+
+function isValidState(state) {
+  return !!state && typeof state === 'object' && !!state.current && Array.isArray(state.current.rounds) && Array.isArray(state.games);
+}
+
+function timingSafeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+function githubHeaders(env) {
+  return {
+    'Accept': 'application/vnd.github+json',
+    'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'canasta-tracker-pages-function'
+  };
+}
+
+function repoConfig(env) {
+  return {
+    owner: env.GITHUB_OWNER || '9v4kkqwws7-coder',
+    repo: env.GITHUB_REPO || 'canasta-tracker',
+    path: env.GITHUB_PATH || 'canasta-state.json',
+    branch: env.GITHUB_BRANCH || 'data'
+  };
+}
+
+async function readGithubState(env) {
+  const { owner, repo, path, branch } = repoConfig(env);
+  const api = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${encodeURIComponent(branch)}`;
+  const res = await fetch(api, { headers: githubHeaders(env) });
+  if (res.status === 404) return { state: null, sha: null };
+  if (!res.ok) throw new Error(`GitHub read failed: ${res.status}`);
+
+  const body = await res.json();
+  const bytes = Uint8Array.from(atob(body.content.replace(/\n/g, '')), c => c.charCodeAt(0));
+  const text = new TextDecoder().decode(bytes);
+  return { state: JSON.parse(text), sha: body.sha };
+}
+
+async function writeGithubState(env, state) {
+  const { owner, repo, path, branch } = repoConfig(env);
+  const current = await readGithubState(env);
+  const content = bytesToBase64(new TextEncoder().encode(JSON.stringify(state, null, 2)));
+
+  const body = {
+    message: `Update Canasta state ${new Date().toISOString()}`,
+    content,
+    branch
+  };
+  if (current.sha) body.sha = current.sha;
+
+  const api = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+  const res = await fetch(api, {
+    method: 'PUT',
+    headers: { ...githubHeaders(env), 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(`GitHub write failed: ${res.status} ${await res.text()}`);
+  const result = await res.json();
+  return { commit: result.commit?.sha || null };
+}
+
+function bytesToBase64(bytes) {
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
