@@ -2,6 +2,10 @@
 // Keeps the existing data model and GitHub sync fully compatible.
 
 (() => {
+  function setTextIfChanged(el, text) {
+    if (el && el.textContent !== text) el.textContent = text;
+  }
+
   function redCountsOnly() {
     const mu = clampRedThree($('#redMuInput')?.value || 0);
     const as = clampRedThree($('#redAsInput')?.value || 0);
@@ -9,13 +13,13 @@
     if (!preview) return;
 
     if (mu + as > 4) {
-      preview.textContent = 'Es gibt pro Runde insgesamt nur vier rote Dreien.';
+      setTextIfChanged(preview, 'Es gibt pro Runde insgesamt nur vier rote Dreien.');
       preview.classList.add('warning');
       return;
     }
 
     preview.classList.remove('warning');
-    preview.textContent = `Anzahl: MU ${mu} · AS ${as}`;
+    setTextIfChanged(preview, `Anzahl: MU ${mu} · AS ${as}`);
   }
 
   // Replace the former points preview. The stored redMu/redAs values stay unchanged.
@@ -55,16 +59,11 @@
     redCountsOnly();
 
     const note = document.querySelector('.red-three-box .rule-note');
-    if (note && note.textContent !== 'Erfasst wird nur die Anzahl der roten Dreien.') {
-      note.textContent = 'Erfasst wird nur die Anzahl der roten Dreien.';
-    }
+    setTextIfChanged(note, 'Erfasst wird nur die Anzahl der roten Dreien.');
 
     document.querySelectorAll('.red-three-meta').forEach(el => {
       const m = el.textContent.match(/^Rote Dreien: MU (\d+)(?: \([^)]*\))? · AS (\d+)(?: \([^)]*\))?$/);
-      if (m) {
-        const clean = `Rote Dreien: MU ${m[1]} · AS ${m[2]}`;
-        if (el.textContent !== clean) el.textContent = clean;
-      }
+      if (m) setTextIfChanged(el, `Rote Dreien: MU ${m[1]} · AS ${m[2]}`);
     });
   }
 
