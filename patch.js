@@ -47,6 +47,7 @@
     const vals = [
       ['Spiele', games.length], ['Siege MU', muWins], ['Siege AS', asWins],
       ['MU Siegquote', games.length ? `${Math.round(muWins / games.length * 100)} %` : '–'],
+      ['AS Siegquote', games.length ? `${Math.round(asWins / games.length * 100)} %` : '–'],
       ['Ø Runden', games.length ? (totalRounds / games.length).toFixed(1) : '–'],
       ['Beste MU-Runde', bestMu ?? '–'], ['Beste AS-Runde', bestAs ?? '–'],
       ['Rote Dreien MU', reds.muCount], ['Rote Dreien AS', reds.asCount],
